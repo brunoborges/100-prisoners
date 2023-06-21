@@ -32,7 +32,7 @@ jobs:
 
     # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     - name: Update dependency graph
-      uses: advanced-security/maven-dependency-submission-action@v1
+      uses: advanced-security/maven-dependency-submission-action@v3
 
     - name: Run program
       run: java -jar ./target/100-prisoners-1.0.jar
