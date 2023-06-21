@@ -1,6 +1,5 @@
 package prisoners;
 
-import java.text.DecimalFormat;
 import java.util.concurrent.Callable;
 import java.util.logging.Logger;
 
@@ -12,13 +11,16 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 
 /**
- * <p>This is a program that implements of the ideal solution to the 100 prisoners
+ * <p>
+ * This is a program that implements of the ideal solution to the 100 prisoners
  * problem.
  * 
- * <p>The 100 prisoners problem is a mathematical problem in probability theory and
- * combinatorics. 
+ * <p>
+ * The 100 prisoners problem is a mathematical problem in probability theory and
+ * combinatorics.
  * 
- * <p>In this problem, 100 numbered prisoners must find their own
+ * <p>
+ * In this problem, 100 numbered prisoners must find their own
  * numbers in one of 100 drawers in order to survive. The rules state that each
  * prisoner may open only 50 drawers and cannot communicate with other
  * prisoners. At first glance, the situation appears hopeless, because the
@@ -36,7 +38,7 @@ public class App implements Callable<Integer> {
     private int numberOfPrisoners = 100;
 
     @Option(names = "-a", description = "The number of attepmts to try.", defaultValue = "1000", paramLabel = "attempts", arity = "1", order = -3)
-    private int attempts = 500;
+    private int attempts = 1000;
 
     public static void main(String[] args) throws Exception {
         int exitCode = new CommandLine(new App()).execute(args);
@@ -45,8 +47,8 @@ public class App implements Callable<Integer> {
 
     @Override
     public Integer call() throws Exception {
-        // Prepare ward
-        FreedomExperiment ward = new FreedomExperiment(numberOfPrisoners);
+        // Prepare experiment
+        FreedomExperiment experiment = new FreedomExperiment(numberOfPrisoners);
 
         // Log info about exercise
         logger.info(() -> "Running exercise with " + numberOfPrisoners + " prisoners and " + attempts
@@ -61,8 +63,9 @@ public class App implements Callable<Integer> {
                 .setInitialMax(attempts)
                 .build();) {
             for (int i = 0; i < attempts; i++) {
-                if (ward.runExercise())
+                if (experiment.run()) {
                     successes++;
+                }
 
                 bar.step();
             }

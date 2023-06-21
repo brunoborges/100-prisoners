@@ -30,7 +30,7 @@ public class FreedomExperiment {
         prepareDatastructures();
     }
 
-    public boolean runExercise() {
+    public boolean run() {
         shuffleNumbersInsideBoxes();
         freedPrisoners.clear();
 
