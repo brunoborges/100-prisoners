@@ -45,9 +45,15 @@ jobs:
       with:
         languages: ${{ matrix.language }}
 
-    - run: |
-         echo "Run, Build Application using script"
-         ./mvnw verify
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+  
+    - name: Build project
+      run: ./mvnw verify
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
