@@ -25,7 +25,6 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v3
 
-    # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v2
       with:
@@ -38,8 +37,8 @@ jobs:
         distribution: 'temurin'
         cache: maven
   
-    - name: Build project
-      run: ./mvnw verify
+    - name: Build with Maven
+      run: ./mvnw -B verify
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
