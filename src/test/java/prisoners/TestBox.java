@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 public class TestBox {
-    
+
     @Test
     public void testBox() {
         Box box = new Box(1);
