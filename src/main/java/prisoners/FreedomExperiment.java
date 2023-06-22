@@ -34,7 +34,7 @@ public class FreedomExperiment {
         shuffleNumbersInsideBoxes();
         freedPrisoners.clear();
 
-        int maxSearches = numberOfPrisoners / 2;
+        final int maxSearches = numberOfPrisoners / 2;
         for (Prisoner p : prisoners) {
             int searches = 0;
             Box currentBox = boxes.get(p.number());
