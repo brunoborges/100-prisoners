@@ -19,10 +19,10 @@ public class FreedomExperiment {
 
     private int numberOfPrisoners;
 
-    private List<Prisoner> prisoners;
-    private List<Prisoner> freedPrisoners;
-    private Map<Integer, Box> boxes;
-    private List<Integer> numbers;
+    private final List<Prisoner> prisoners;
+    private final List<Prisoner> freedPrisoners;
+    private final Map<Integer, Box> boxes;
+    private final List<Integer> numbers;
 
     public FreedomExperiment(int numberOfPrisoners) {
         this.numberOfPrisoners = numberOfPrisoners;
