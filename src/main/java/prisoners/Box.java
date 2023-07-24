@@ -7,14 +7,20 @@ package prisoners;
  */
 public class Box {
 
-    private int label;
-    private int hiddenNumber;
+    private int label = -1;
+    private int hiddenNumber = -1;
 
     public Box(int label) {
+        if (label < 0) {
+            throw new IllegalArgumentException("Label must be positive");
+        }
         this.label = label;
     }
 
     public void hideNumberInside(int number) {
+        if (number < 0) {
+            throw new IllegalArgumentException("Number must be positive");
+        }
         this.hiddenNumber = number;
     }
 
@@ -29,6 +35,17 @@ public class Box {
     @Override
     public String toString() {
         return "Box [label=" + label + ", hiddenNumber=" + hiddenNumber + "]";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Box) {
+            Box other = (Box) obj;
+            boolean sameLabel = this.label == other.label;
+            boolean sameHiddenNumber = this.hiddenNumber == other.hiddenNumber;
+            return sameLabel && sameHiddenNumber;
+        }
+        return false;
     }
 
 }

@@ -12,6 +12,13 @@ public class TestBox {
 
         box.hideNumberInside(42);
         Assertions.assertEquals(42, box.hiddenNumber());
+
+        box.hideNumberInside(37);
+        Assertions.assertEquals(37, box.hiddenNumber());
+
+        Box box2 = new Box(1);
+        box2.hideNumberInside(box.hiddenNumber());
+        Assertions.assertEquals(box, box2);
     }
 
 }
