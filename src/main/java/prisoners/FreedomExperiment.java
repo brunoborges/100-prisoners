@@ -27,10 +27,16 @@ public class FreedomExperiment {
     public FreedomExperiment(int numberOfPrisoners) {
         this.numberOfPrisoners = numberOfPrisoners;
         validateNumberOfPrisoners(numberOfPrisoners);
-        prepareDatastructures();
+
+        prisoners = new ArrayList<>(numberOfPrisoners);
+        freedPrisoners = new ArrayList<>(numberOfPrisoners);
+        numbers = new ArrayList<>(numberOfPrisoners);
+        boxes = new HashMap<>(numberOfPrisoners);
     }
 
     public boolean run() {
+        prepareDatastructures();
+
         shuffleNumbersInsideBoxes();
         freedPrisoners.clear();
 
@@ -73,17 +79,17 @@ public class FreedomExperiment {
     }
 
     private void prepareDatastructures() {
-        prisoners = new ArrayList<>(numberOfPrisoners);
-        freedPrisoners = new ArrayList<>(numberOfPrisoners);
-        boxes = new HashMap<>(numberOfPrisoners);
-        numbers = new ArrayList<>(IntStream.range(1, numberOfPrisoners + 1).boxed().toList());
+        prisoners.clear();
+        freedPrisoners.clear();
+        boxes.clear();
+        numbers.clear();
+        numbers.addAll(IntStream.range(1, numberOfPrisoners + 1).boxed().toList());
 
         // Prepare sets
         numbers.forEach(i -> {
             prisoners.add(new Prisoner(i));
             boxes.put(i, new Box(i));
         });
-
     }
 
     private void validateNumberOfPrisoners(int numberOfPrisoners2) {

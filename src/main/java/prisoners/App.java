@@ -58,7 +58,7 @@ public class App implements Callable<Integer> {
         int successes = 0;
 
         try (ProgressBar bar = new ProgressBarBuilder()
-                .setStyle(ProgressBarStyle.ASCII)
+                .setStyle(ProgressBarStyle.COLORFUL_UNICODE_BAR)
                 .setTaskName("Prison exercise attempts")
                 .setInitialMax(attempts)
                 .build();) {
