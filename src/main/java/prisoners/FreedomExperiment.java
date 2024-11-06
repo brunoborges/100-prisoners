@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.logging.Logger;
 import java.util.stream.IntStream;
 
@@ -34,7 +35,7 @@ public class FreedomExperiment {
         boxes = new HashMap<>(numberOfPrisoners);
     }
 
-    public boolean run() {
+    private boolean runInternal(Optional<StepListener> stepListener) {
         prepareDatastructures();
 
         shuffleNumbersInsideBoxes();
@@ -46,6 +47,9 @@ public class FreedomExperiment {
             Box currentBox = boxes.get(p.number());
             boolean found = false;
             while (searches < maxSearches) {
+                final Box latestBox = currentBox;
+                stepListener.ifPresent(s -> s.onStep(p, latestBox));
+
                 if (currentBox.hiddenNumber() == p.number()) {
                     found = true;
                     break;
@@ -98,6 +102,18 @@ public class FreedomExperiment {
 
         if (numberOfPrisoners < 2)
             throw new IllegalArgumentException("Number of prisoners must be at least 2.");
+    }
+
+    public Box getBox(int i) {
+        return boxes.get(i);
+    }
+
+    public boolean run(StepListener stepListener) {
+        return runInternal(Optional.ofNullable(stepListener));
+    }
+
+    public boolean run() {
+        return runInternal(Optional.empty());
     }
 
 }

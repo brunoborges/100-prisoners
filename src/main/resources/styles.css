@@ -1,0 +1,96 @@
+body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+    background-color: #f0f0f0;
+    margin: 0;
+    position: relative;
+}
+
+#controls {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+#box-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+    gap: 10px;
+    width: 80%;
+    max-width: 1200px;
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.box {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 14px;
+    border-radius: 5px;
+    opacity: 0;
+    transform: scale(0);
+    transition: opacity 0.5s, transform 0.5s;
+}
+
+.box.visible {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.box .identifier {
+    font-size: 12px;
+    color: #fff;
+}
+
+.box .hidden-number {
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+    display: none; /* Initially hidden, shown when relevant */
+}
+
+#prisoner {
+    width: 30px;
+    height: 30px;
+    background-color: red;
+    border-radius: 50%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-weight: bold;
+    transition: top 1s, left 1s;
+    z-index: 10; /* Ensure the prisoner is above other elements */
+}
+
+#free-prisoners-container {
+    width: 80%;
+    max-width: 1200px;
+    height: 50px;
+    background-color: #d3d3d3;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px dashed #4CAF50;
+    position: relative; /* Ensure correct positioning context */
+}
