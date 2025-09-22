@@ -71,6 +71,32 @@ java -jar target/100-prisoners-1.0.jar -p 50 -a 500
 java -jar target/100-prisoners-1.0.jar -h
 ```
 
+### Running the GUI Visualization 🎮
+
+Experience the experiment visually with the interactive Swing desktop application:
+
+```bash
+# Launch the GUI application
+./launch-gui.sh
+
+# Or run directly with Maven
+./mvnw clean compile exec:java@gui
+```
+
+**GUI Features:**
+- 🎯 **Real-time visualization** of prisoners following the chain strategy
+- 🎛️ **Interactive controls** to start/stop/reset experiments
+- 📊 **Live statistics** showing success rates and progress
+- 🔧 **Configurable parameters** (number of prisoners, animation speed)
+- 🎨 **Color-coded boxes** showing prisoner paths and outcomes
+- 📈 **Progress tracking** across multiple experiment runs
+
+**GUI Controls:**
+- **Blue boxes** = Currently being opened by a prisoner
+- **Light blue boxes** = Part of the current prisoner's path
+- **Green boxes** = Prisoner successfully found their number
+- **Animation speed** = Adjustable from 50ms to 2000ms between steps
+
 ## 📊 Example Output
 
 ```
@@ -80,9 +106,22 @@ Prison exercise attempts 100% ━━━━━━━━━━━━━━━━�
 2025-09-22 11:58:18 INFO prisoners.App call How often did prisoners escape? 33.2%
 ```
 
-## 🎮 Web Visualization (Coming Soon)
+## 🎮 Web Visualization & Desktop GUI
 
-The project includes a web-based visualization with real-time WebSocket updates to watch the prisoners navigate through the boxes. This feature demonstrates the chain-following strategy in action.
+The project includes two visualization options:
+
+### 🖥️ **Desktop GUI Application (Java Swing)**
+A rich interactive desktop application with real-time visualization:
+- Watch prisoners navigate through boxes step by step
+- Adjustable animation speed and experiment parameters
+- Live statistics and success rate tracking
+- Color-coded visual feedback for different states
+
+### 🌐 **Web Interface (WebSocket)**
+A web-based visualization with real-time updates:
+- Browser-based interface with HTML5/JavaScript
+- WebSocket server for live experiment streaming
+- Suitable for remote viewing and demonstrations
 
 ## 🏗️ Project Structure
 
@@ -95,7 +134,10 @@ src/
 │   ├── Box.java                             # Box with hidden numbers
 │   ├── StepListener.java                    # Observer interface
 │   ├── ExperimentSession.java               # WebSocket session management
-│   └── FreedomExperimentWebSocketServer.java # WebSocket server
+│   ├── FreedomExperimentWebSocketServer.java # WebSocket server
+│   └── gui/
+│       ├── PrisonersVisualizationApp.java   # Main GUI application
+│       └── BoxPanel.java                    # Custom box visualization component
 ├── main/resources/
 │   ├── index.html                           # Web visualization
 │   ├── script.js                            # JavaScript for animation
@@ -103,7 +145,9 @@ src/
 └── test/java/prisoners/
     ├── TestApp.java                         # Application tests
     ├── TextFreedomExperiment.java           # Experiment logic tests
-    └── TestBox.java                         # Box functionality tests
+    ├── TestBox.java                         # Box functionality tests
+    └── gui/
+        └── TestBoxPanel.java                # GUI component tests
 ```
 
 ## ⚙️ Command Line Options
@@ -114,6 +158,14 @@ src/
 | `-a` | Number of simulation attempts | 1000 | `-a 2000` |
 | `-h` | Show help message | - | `-h` |
 | `-V` | Show version | - | `-V` |
+
+### 🎮 GUI Application Options
+
+The desktop GUI application provides interactive controls:
+- **Prisoners spinner**: Adjust number of prisoners (4-1000, must be even)
+- **Animation delay**: Control visualization speed (50-2000ms)
+- **Start/Stop/Reset**: Control experiment execution
+- **Real-time statistics**: Track success rates across multiple runs
 
 ## 🧪 Testing
 
@@ -160,11 +212,14 @@ Running the simulation consistently produces results around **31-33%**, confirmi
 
 Contributions are welcome! Please feel free to submit a Pull Request. Areas for improvement:
 
-- 🌐 Enhanced web visualization
-- 📈 Additional statistical analysis
-- 🔧 Performance optimizations
-- 📚 More comprehensive documentation
-- 🧮 Support for different strategies comparison
+- 🌐 Enhanced web visualization with better UI/UX
+- 🎮 Additional GUI features (different strategies, statistics export)
+- 📈 More comprehensive statistical analysis and reporting
+- 🔧 Performance optimizations for large numbers of prisoners
+- 📚 More comprehensive documentation and tutorials
+- 🧮 Support for comparing different strategies
+- 🎨 Improved visual design and animations
+- 📊 Data export capabilities (CSV, JSON, etc.)
 
 ## 📜 License
 

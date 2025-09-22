@@ -96,6 +96,17 @@
                 <configuration>
                     <mainClass>prisoners.App</mainClass>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>gui</id>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                        <configuration>
+                            <mainClass>prisoners.gui.PrisonersVisualizationApp</mainClass>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
