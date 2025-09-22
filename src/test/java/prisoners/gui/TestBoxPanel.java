@@ -6,28 +6,28 @@ import org.junit.jupiter.api.Assertions;
 import javax.swing.*;
 
 /**
- * Modern Java tests for GUI components.
+ * Modern Java tests for GUI components with enhanced modern UI.
  */
 public class TestBoxPanel {
 
     @Test
-    public void testBoxPanelCreation() {
-        var boxPanel = new BoxPanel(1);
+    public void testModernBoxPanelCreation() {
+        var boxPanel = new ModernBoxPanel(1);
         Assertions.assertEquals(1, boxPanel.getBoxNumber());
         Assertions.assertEquals(-1, boxPanel.getHiddenNumber());
-        Assertions.assertEquals(BoxPanel.VisualState.NORMAL, boxPanel.getState());
+        Assertions.assertEquals(ModernBoxPanel.VisualState.NORMAL, boxPanel.getState());
     }
 
     @Test
     public void testSetHiddenNumber() {
-        var boxPanel = new BoxPanel(5);
+        var boxPanel = new ModernBoxPanel(5);
         boxPanel.setHiddenNumber(42);
         Assertions.assertEquals(42, boxPanel.getHiddenNumber());
     }
 
     @Test
-    public void testVisualStateTransitions() {
-        var boxPanel = new BoxPanel(10);
+    public void testModernVisualStateTransitions() {
+        var boxPanel = new ModernBoxPanel(10);
         
         // Test state changes using modern assertions
         boxPanel.setFoundTarget(true);
@@ -44,18 +44,18 @@ public class TestBoxPanel {
 
     @Test
     public void testReset() {
-        var boxPanel = new BoxPanel(10);
+        var boxPanel = new ModernBoxPanel(10);
         boxPanel.setHiddenNumber(25);
         boxPanel.setFoundTarget(true);
         
         boxPanel.reset();
         
         Assertions.assertEquals(-1, boxPanel.getHiddenNumber());
-        Assertions.assertEquals(BoxPanel.VisualState.NORMAL, boxPanel.getState());
+        Assertions.assertEquals(ModernBoxPanel.VisualState.NORMAL, boxPanel.getState());
     }
     
     @Test
-    public void testVisualizationAppInstantiation() {
+    public void testModernVisualizationAppInstantiation() {
         // Test enhanced for modern Java stable features
         Assertions.assertDoesNotThrow(() -> {
             System.setProperty("java.awt.headless", "true");
@@ -71,11 +71,11 @@ public class TestBoxPanel {
     }
     
     @Test
-    public void testVisualStateRecord() {
+    public void testModernVisualStateRecord() {
         // Test the modern record implementation
-        var normalState = BoxPanel.VisualState.NORMAL;
-        var activeState = new BoxPanel.VisualState(true, false, false);
-        var successState = new BoxPanel.VisualState(false, false, true);
+        var normalState = ModernBoxPanel.VisualState.NORMAL;
+        var activeState = new ModernBoxPanel.VisualState(true, false, false);
+        var successState = new ModernBoxPanel.VisualState(false, false, true);
         
         // Test record equality and properties
         Assertions.assertFalse(normalState.isCurrentlyOpened());
@@ -85,5 +85,30 @@ public class TestBoxPanel {
         // Test record immutability
         Assertions.assertNotEquals(normalState, activeState);
         Assertions.assertNotEquals(activeState, successState);
+    }
+    
+    @Test
+    public void testModernButtonCreation() {
+        // Test modern button component
+        Assertions.assertDoesNotThrow(() -> {
+            System.setProperty("java.awt.headless", "true");
+            var button = new ModernButton("Test Button", java.awt.Color.BLUE);
+            Assertions.assertNotNull(button);
+            Assertions.assertEquals("Test Button", button.getText());
+        });
+    }
+    
+    @Test
+    public void testAnimatedStatsPanel() {
+        // Test animated stats panel
+        Assertions.assertDoesNotThrow(() -> {
+            System.setProperty("java.awt.headless", "true");
+            var statsPanel = new AnimatedStatsPanel("Test Stat", "100%", java.awt.Color.GREEN);
+            Assertions.assertNotNull(statsPanel);
+            
+            // Test value updates
+            statsPanel.updateValue("75%");
+            // Should not throw exceptions during animation setup
+        });
     }
 }

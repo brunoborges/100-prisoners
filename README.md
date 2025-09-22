@@ -121,31 +121,42 @@ java -jar target/100-prisoners-1.0.jar -p 50 -a 500
 java -jar target/100-prisoners-1.0.jar -h
 ```
 
-### Running the GUI Visualization 🎮
+### 🎮 GUI Visualization 🌟
 
-Experience the experiment visually with the interactive Swing desktop application:
+Experience the experiment visually with the **stunning modern desktop application**:
 
 ```bash
-# Launch the GUI application
+# Launch the modern GUI application
 ./launch-gui.sh
 
 # Or run directly with Maven
 ./mvnw clean compile exec:java@gui
 ```
 
-**GUI Features:**
-- 🎯 **Real-time visualization** of prisoners following the chain strategy
-- 🎛️ **Interactive controls** to start/stop/reset experiments
-- 📊 **Live statistics** showing success rates and progress
-- 🔧 **Configurable parameters** (number of prisoners, animation speed)
-- 🎨 **Color-coded boxes** showing prisoner paths and outcomes
-- 📈 **Progress tracking** across multiple experiment runs
+**🎨 Modern UI Features:**
+- **🎨 Flat, modern design** with card-based layout and smooth animations
+- **🎯 Real-time visualization** of prisoners following the chain strategy
+- **🎛️ Interactive controls** with beautifully styled buttons and inputs
+- **📊 Animated statistics panels** showing success rates and progress
+- **🔧 Configurable parameters** with modern spinners and controls
+- **🎨 Color-coded visual feedback** for different prisoner states
+- **📈 Live progress tracking** with modern progress bars
+- **✨ Hover effects and animations** for better user engagement
+- **🖼️ Card-based layout** with subtle shadows and rounded corners
+- **🎯 Enhanced typography** using modern system fonts
 
-**GUI Controls:**
-- **Blue boxes** = Currently being opened by a prisoner
-- **Light blue boxes** = Part of the current prisoner's path
-- **Green boxes** = Prisoner successfully found their number
-- **Animation speed** = Adjustable from 50ms to 2000ms between steps
+**🎨 Visual States:**
+- **🔵 Blue highlight** = Currently opened box with pulsing animation
+- **🔷 Light blue** = Part of the current prisoner's path
+- **🟢 Green with checkmark** = Prisoner successfully found their number
+- **⚡ Animated transitions** = Smooth state changes and visual feedback
+
+**🎛️ Modern Controls:**
+- **Modern styled buttons** with hover effects and shadows
+- **Animated statistics cards** that pulse when values update  
+- **Responsive grid layout** that adapts to different prisoner counts
+- **Smooth animations** with configurable speed (50ms to 2000ms)
+- **Real-time progress indicators** with color-coded success rates
 
 ## 📊 Example Output
 
@@ -156,16 +167,19 @@ Prison exercise attempts 100% ━━━━━━━━━━━━━━━━�
 2025-09-22 11:58:18 INFO prisoners.App call How often did prisoners escape? 33.2%
 ```
 
-## 🎮 Web Visualization & Desktop GUI
+## 🎮 Visualization Options
 
 The project includes two visualization options:
 
-### 🖥️ **Desktop GUI Application (Java Swing)**
-A rich interactive desktop application with real-time visualization:
-- Watch prisoners navigate through boxes step by step
-- Adjustable animation speed and experiment parameters
-- Live statistics and success rate tracking
-- Color-coded visual feedback for different states
+### 🖥️ **Modern Desktop GUI Application (Java Swing)**
+A **stunning, modern desktop application** with flat design and smooth animations:
+- 🎨 **Modern flat design** with card-based layout and subtle shadows
+- ⚡ **Smooth animations** and hover effects throughout the interface
+- 🎯 **Real-time step-by-step visualization** of the chain strategy
+- 📊 **Animated statistics panels** with live updates and visual feedback
+- 🎛️ **Modern controls** with beautifully styled buttons and inputs
+- 🖼️ **Responsive layout** that adapts to different screen sizes
+- ✨ **Enhanced user experience** with intuitive interactions
 
 ### 🌐 **Web Interface (WebSocket)**
 A web-based visualization with real-time updates:
@@ -186,8 +200,11 @@ src/
 │   ├── ExperimentSession.java               # WebSocket session management
 │   ├── FreedomExperimentWebSocketServer.java # WebSocket server
 │   └── gui/
-│       ├── PrisonersVisualizationApp.java   # Main GUI application
-│       └── BoxPanel.java                    # Custom box visualization component
+│       ├── PrisonersVisualizationApp.java   # Modern GUI application with flat design
+│       ├── ModernBoxPanel.java              # Enhanced box visualization with animations
+│       ├── ModernButton.java                # Styled button component with hover effects
+│       ├── ModernProgressBar.java           # Animated progress bar with gradient
+│       └── AnimatedStatsPanel.java          # Statistics panel with pulse animations
 ├── main/resources/
 │   ├── index.html                           # Web visualization
 │   ├── script.js                            # JavaScript for animation
@@ -197,7 +214,7 @@ src/
     ├── TextFreedomExperiment.java           # Experiment logic tests
     ├── TestBox.java                         # Box functionality tests
     └── gui/
-        └── TestBoxPanel.java                # GUI component tests
+        └── TestBoxPanel.java                # Enhanced GUI component tests
 ```
 
 ## ⚙️ Command Line Options
@@ -211,11 +228,14 @@ src/
 
 ### 🎮 GUI Application Options
 
-The desktop GUI application provides interactive controls:
-- **Prisoners spinner**: Adjust number of prisoners (4-1000, must be even)
-- **Animation delay**: Control visualization speed (50-2000ms)
-- **Start/Stop/Reset**: Control experiment execution
-- **Real-time statistics**: Track success rates across multiple runs
+The modern desktop GUI application provides comprehensive interactive controls:
+- **🎛️ Prisoners spinner**: Adjust number of prisoners (4-1000, must be even)
+- **⚡ Animation speed**: Control visualization speed (50-2000ms) 
+- **🎮 Control buttons**: Modern styled Start/Stop/Reset with visual feedback
+- **📊 Live statistics**: Animated success rate tracking across multiple runs
+- **🎨 Visual feedback**: Color-coded progress bars and status indicators
+- **✨ Smooth animations**: Hover effects, transitions, and visual state changes
+- **🖼️ Card-based design**: Modern flat interface with subtle shadows and rounded corners
 
 ## 🧪 Testing
 
@@ -262,14 +282,16 @@ Running the simulation consistently produces results around **31-33%**, confirmi
 
 Contributions are welcome! Please feel free to submit a Pull Request. Areas for improvement:
 
-- 🌐 Enhanced web visualization with better UI/UX
-- 🎮 Additional GUI features (different strategies, statistics export)
-- 📈 More comprehensive statistical analysis and reporting
-- 🔧 Performance optimizations for large numbers of prisoners
-- 📚 More comprehensive documentation and tutorials
-- 🧮 Support for comparing different strategies
-- 🎨 Improved visual design and animations
-- 📊 Data export capabilities (CSV, JSON, etc.)
+- 🌐 Enhanced web visualization with modern frameworks (React, Vue.js)
+- 🎮 Additional GUI features (different strategies, 3D visualization, data export)
+- 📈 Advanced statistical analysis and machine learning insights
+- 🔧 Performance optimizations for massive prisoner counts (10K+)
+- 📚 Interactive tutorials and educational content
+- 🧮 Support for comparing different mathematical strategies
+- 🎨 Even more stunning visual effects and animations
+- 📊 Real-time data export capabilities (CSV, JSON, database integration)
+- 🎯 Accessibility improvements (screen readers, keyboard navigation)
+- 🌍 Internationalization and localization support
 
 ## 📜 License
 
