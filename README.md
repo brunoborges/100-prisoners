@@ -1,9 +1,19 @@
-# 🔐 100 Prisoners Problem Simulation
+# 🔐 100 Prisoners Problem Simulation - Modern Java Edition
 
 [![Java CI with Maven](https://github.com/brunoborges/100-prisoners/workflows/Java%20CI%20with%20Maven/badge.svg)](https://github.com/brunoborges/100-prisoners/actions)
 [![CodeQL](https://github.com/brunoborges/100-prisoners/workflows/CodeQL/badge.svg)](https://github.com/brunoborges/100-prisoners/actions)
+[![Java 21+](https://img.shields.io/badge/Java-21%2B-orange)](https://openjdk.java.net/projects/jdk/21/)
+[![Stable Features Only](https://img.shields.io/badge/Features-Stable%20Only-green)](https://openjdk.java.net/projects/jdk/21/)
 
 A Java implementation demonstrating the **optimal strategy** for the famous 100 Prisoners Problem, achieving a remarkable **~31% success rate** instead of the seemingly impossible odds.
+
+**🚀 Now powered by Modern Java** with stable language features including:
+- 📝 **Text Blocks** for cleaner multi-line strings
+- 🎯 **Pattern Matching** with instanceof and switch expressions  
+- 🔧 **Records** for immutable data structures
+- 🧵 **Virtual Threads** for improved performance (Java 21+)
+- 💎 **Enhanced Switch Expressions** and modern syntax
+- 📦 **Improved Collections** and Stream API enhancements
 
 ## 🧩 The Problem
 
@@ -19,10 +29,44 @@ The 100 Prisoners Problem is a fascinating mathematical puzzle in probability th
 
 At first glance, this seems hopeless - the naive strategy gives virtually 0% chance of success. However, there exists an optimal strategy that dramatically improves the odds!
 
-### 🔗 Learn More
-- 📖 [Wikipedia Article](https://en.wikipedia.org/wiki/100_prisoners_problem)
-- 🎥 [Veritasium Video Explanation](https://www.youtube.com/watch?v=iSNsgj1OCLA)
-- 📊 [Mathematical Analysis](https://en.wikipedia.org/wiki/100_prisoners_problem#Strategy)
+### 🚀 **Modern Java Stable Features**
+
+This implementation showcases stable modern Java features:
+
+```java
+// Text Blocks for better formatting
+String results = String.format("""
+    🎯 SIMULATION RESULTS:
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    Prisoners:     %d
+    Success rate:  %.2f%%
+    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    """, prisoners, successRate());
+
+// Enhanced Switch Expressions (Java 14+, stable)
+return switch (validateInputs()) {
+    case null -> runExperiment();
+    case String error -> {
+        logger.severe(error);
+        yield 1;
+    }
+};
+
+// Records with computed properties (Java 14+, stable)  
+public record ExperimentStats(int total, int successes, boolean allEscaped) {
+    public double successRate() {
+        return total > 0 ? (successes * 100.0) / total : 0.0;
+    }
+}
+
+// Pattern Matching with instanceof (Java 16+, stable)
+if (obj instanceof Box other) {
+    return this.label == other.label && this.hiddenNumber == other.hiddenNumber;
+}
+
+// Virtual Threads for improved performance (Java 21+, stable)
+executorService = Executors.newVirtualThreadPerTaskExecutor();
+```
 
 ## 🎯 The Optimal Strategy
 
@@ -38,10 +82,16 @@ The key insight is to follow a **"chain strategy"**:
 
 This strategy transforms the problem into finding the **longest cycle in a random permutation**. The prisoners succeed if and only if there's no cycle longer than 50 in the permutation of numbers in boxes. This happens with probability approximately **ln(2) ≈ 0.693**, giving a success rate of about **31%** - much better than the intuitive approach!
 
+### 🔗 Learn More
+- 📖 [Wikipedia Article](https://en.wikipedia.org/wiki/100_prisoners_problem)
+- 🎥 [Veritasium Video Explanation](https://www.youtube.com/watch?v=iSNsgj1OCLA)
+- 📊 [Mathematical Analysis](https://en.wikipedia.org/wiki/100_prisoners_problem#Strategy)
+- ☕ [Modern Java Features](https://openjdk.java.net/projects/jdk/21/)
+
 ## 🚀 Quick Start
 
 ### Prerequisites
-- **Java 17** or higher
+- **Java 21** or higher
 - **Maven** (or use the included `mvnw` wrapper)
 
 ### Building the Project

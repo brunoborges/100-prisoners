@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Alternative launcher for GUI using the packaged JAR
+# Alternative launcher for GUI using the packaged JAR - Modern Java Edition
 # Usage: ./launch-gui-jar.sh
 
-echo "🎮 Launching 100 Prisoners Problem GUI from JAR..."
+echo "🎮 Launching 100 Prisoners Problem GUI from JAR (Modern Java)..."
 
 # Check if JAR exists
 if [ ! -f "target/100-prisoners-1.0.jar" ]; then

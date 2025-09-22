@@ -1,27 +1,24 @@
 package prisoners;
 
+import java.util.Objects;
+
 /**
  * This class represents a box with a label and a hidden number.
+ * Modernized for Java 21 with improved validation and string handling.
  * 
  * @see https://en.wikipedia.org/wiki/100_prisoners_problem
  */
-public class Box {
+public final class Box {
 
-    private int label = -1;
+    private final int label;
     private int hiddenNumber = -1;
 
     public Box(int label) {
-        if (label < 0) {
-            throw new IllegalArgumentException("Label must be positive");
-        }
-        this.label = label;
+        this.label = validatePositive(label, "Label");
     }
 
     public void hideNumberInside(int number) {
-        if (number < 0) {
-            throw new IllegalArgumentException("Number must be positive");
-        }
-        this.hiddenNumber = number;
+        this.hiddenNumber = validatePositive(number, "Number");
     }
 
     public int label() {
@@ -34,18 +31,29 @@ public class Box {
 
     @Override
     public String toString() {
-        return "Box [label=" + label + ", hiddenNumber=" + hiddenNumber + "]";
+        return String.format("Box[label=%d, hiddenNumber=%d]", label, hiddenNumber);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Box) {
-            Box other = (Box) obj;
-            boolean sameLabel = this.label == other.label;
-            boolean sameHiddenNumber = this.hiddenNumber == other.hiddenNumber;
-            return sameLabel && sameHiddenNumber;
+        if (obj instanceof Box other) {
+            return this.label == other.label && this.hiddenNumber == other.hiddenNumber;
         }
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(label, hiddenNumber);
+    }
+
+    /**
+     * Validates that a number is positive using modern Java patterns.
+     */
+    private static int validatePositive(int value, String fieldName) {
+        if (value <= 0) {
+            throw new IllegalArgumentException(String.format("%s must be positive, got: %d", fieldName, value));
+        }
+        return value;
+    }
 }

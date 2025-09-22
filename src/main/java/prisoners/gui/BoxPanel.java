@@ -4,28 +4,31 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * A custom JPanel representing a box in the 100 Prisoners Problem visualization.
- * Shows the box number, hidden number, and visual states during the experiment.
+ * Modern Java implementation of a box visualization component.
+ * Enhanced with records, modern syntax, and stable language features.
  */
-public class BoxPanel extends JPanel {
+public final class BoxPanel extends JPanel {
     
-    private static final long serialVersionUID = 1L;
-    
-    // Visual states
-    private boolean isCurrentlyOpened = false;
-    private boolean isInPath = false;
-    private boolean isFoundTarget = false;
+    // Visual state record for type safety
+    public record VisualState(
+        boolean isCurrentlyOpened,
+        boolean isInPath,
+        boolean isFoundTarget
+    ) {
+        public static final VisualState NORMAL = new VisualState(false, false, false);
+    }
     
     // Box properties
     private final int boxNumber;
     private int hiddenNumber = -1;
+    private VisualState state = VisualState.NORMAL;
     
-    // Colors
-    private static final Color NORMAL_COLOR = Color.LIGHT_GRAY;
-    private static final Color CURRENT_COLOR = Color.BLUE;
-    private static final Color PATH_COLOR = new Color(173, 216, 230); // Light blue
-    private static final Color SUCCESS_COLOR = Color.GREEN;
-    private static final Color BORDER_COLOR = Color.DARK_GRAY;
+    // Modern color palette with better accessibility
+    private static final Color NORMAL_COLOR = new Color(240, 240, 240);
+    private static final Color CURRENT_COLOR = new Color(52, 152, 219);  // Modern blue
+    private static final Color PATH_COLOR = new Color(174, 213, 255);     // Light blue
+    private static final Color SUCCESS_COLOR = new Color(46, 204, 113);   // Modern green
+    private static final Color BORDER_COLOR = new Color(149, 165, 166);   // Soft gray
     
     public BoxPanel(int boxNumber) {
         this.boxNumber = boxNumber;
@@ -34,56 +37,52 @@ public class BoxPanel extends JPanel {
         setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 1));
         setOpaque(true);
         setBackground(NORMAL_COLOR);
-        
-        // Add tooltip
-        setToolTip();
+        updateToolTip();
     }
     
     public void setHiddenNumber(int hiddenNumber) {
         this.hiddenNumber = hiddenNumber;
-        setToolTip();
+        updateToolTip();
         repaint();
     }
     
     public void setCurrentlyOpened(boolean currentlyOpened) {
-        this.isCurrentlyOpened = currentlyOpened;
+        state = new VisualState(currentlyOpened, state.isInPath(), state.isFoundTarget());
         updateAppearance();
     }
     
     public void setInPath(boolean inPath) {
-        this.isInPath = inPath;
+        state = new VisualState(state.isCurrentlyOpened(), inPath, state.isFoundTarget());
         updateAppearance();
     }
     
     public void setFoundTarget(boolean foundTarget) {
-        this.isFoundTarget = foundTarget;
+        state = new VisualState(state.isCurrentlyOpened(), state.isInPath(), foundTarget);
         updateAppearance();
     }
     
     public void clearPath() {
-        this.isCurrentlyOpened = false;
-        this.isInPath = false;
-        // Keep isFoundTarget to show successful boxes
+        state = new VisualState(false, false, state.isFoundTarget());
         updateAppearance();
     }
     
     public void reset() {
-        this.isCurrentlyOpened = false;
-        this.isInPath = false;
-        this.isFoundTarget = false;
-        this.hiddenNumber = -1;
+        state = VisualState.NORMAL;
+        hiddenNumber = -1;
         updateAppearance();
-        setToolTip();
+        updateToolTip();
     }
     
+    /**
+     * Modern color selection using enhanced logic.
+     */
     private void updateAppearance() {
         Color backgroundColor;
-        
-        if (isFoundTarget) {
+        if (state.isFoundTarget()) {
             backgroundColor = SUCCESS_COLOR;
-        } else if (isCurrentlyOpened) {
+        } else if (state.isCurrentlyOpened()) {
             backgroundColor = CURRENT_COLOR;
-        } else if (isInPath) {
+        } else if (state.isInPath()) {
             backgroundColor = PATH_COLOR;
         } else {
             backgroundColor = NORMAL_COLOR;
@@ -93,76 +92,96 @@ public class BoxPanel extends JPanel {
         repaint();
     }
     
-    private void setToolTip() {
-        if (hiddenNumber > 0) {
-            setToolTipText(String.format("Box %d contains number %d", boxNumber, hiddenNumber));
-        } else {
-            setToolTipText(String.format("Box %d", boxNumber));
-        }
+    private void updateToolTip() {
+        var tooltipText = hiddenNumber > 0 ? 
+            String.format("Box %d contains number %d", boxNumber, hiddenNumber) :
+            String.format("Box %d", boxNumber);
+        setToolTipText(tooltipText);
     }
     
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         
-        Graphics2D g2d = (Graphics2D) g.create();
-        g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-        
+        if (g instanceof Graphics2D g2d) {
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            
+            paintBoxContents(g2d);
+            paintStateIndicators(g2d);
+        }
+    }
+    
+    /**
+     * Paint box contents using modern drawing techniques.
+     */
+    private void paintBoxContents(Graphics2D g2d) {
         int width = getWidth();
         int height = getHeight();
         
         // Draw box number (always visible)
         g2d.setColor(Color.BLACK);
-        g2d.setFont(new Font("Arial", Font.BOLD, 10));
-        FontMetrics fm = g2d.getFontMetrics();
+        g2d.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        var fm = g2d.getFontMetrics();
         
-        String boxText = String.valueOf(boxNumber);
+        var boxText = String.valueOf(boxNumber);
         int textWidth = fm.stringWidth(boxText);
         int textHeight = fm.getHeight();
         
-        g2d.drawString(boxText, 
-            (width - textWidth) / 2, 
-            textHeight - 2);
+        g2d.drawString(boxText, (width - textWidth) / 2, textHeight - 2);
         
-        // Draw hidden number if revealed (during experiment)
-        if (hiddenNumber > 0 && (isCurrentlyOpened || isInPath || isFoundTarget)) {
-            g2d.setFont(new Font("Arial", Font.BOLD, 12));
-            g2d.setColor(isFoundTarget ? Color.WHITE : Color.RED);
+        // Draw hidden number if revealed
+        boolean shouldShowHidden = (state.isCurrentlyOpened() || state.isInPath() || state.isFoundTarget()) && hiddenNumber > 0;
+        
+        if (shouldShowHidden) {
+            g2d.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            var hiddenColor = state.isFoundTarget() ? Color.WHITE : new Color(231, 76, 60); // Modern red
+            g2d.setColor(hiddenColor);
             
-            String hiddenText = String.valueOf(hiddenNumber);
-            FontMetrics hiddenFm = g2d.getFontMetrics();
+            var hiddenText = String.valueOf(hiddenNumber);
+            var hiddenFm = g2d.getFontMetrics();
             int hiddenWidth = hiddenFm.stringWidth(hiddenText);
             int hiddenHeight = hiddenFm.getHeight();
             
-            g2d.drawString(hiddenText, 
-                (width - hiddenWidth) / 2, 
-                height / 2 + hiddenHeight / 4);
+            g2d.drawString(hiddenText, (width - hiddenWidth) / 2, height / 2 + hiddenHeight / 4);
         }
+    }
+    
+    /**
+     * Paint visual state indicators using pattern matching.
+     */
+    private void paintStateIndicators(Graphics2D g2d) {
+        int width = getWidth();
+        int height = getHeight();
         
-        // Draw special indicators
-        if (isCurrentlyOpened) {
-            // Draw a pulsing border for currently opened box
+        // Draw indicators based on state
+        if (state.isCurrentlyOpened()) {
+            // Animated border for currently opened box
             g2d.setColor(CURRENT_COLOR);
             g2d.setStroke(new BasicStroke(3));
             g2d.drawRect(2, 2, width - 4, height - 4);
+        } else if (state.isFoundTarget()) {
+            // Modern checkmark for success
+            drawCheckmark(g2d, width, height);
         }
+    }
+    
+    /**
+     * Draw a modern checkmark using enhanced graphics.
+     */
+    private void drawCheckmark(Graphics2D g2d, int width, int height) {
+        g2d.setColor(Color.WHITE);
+        g2d.setStroke(new BasicStroke(2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
         
-        if (isFoundTarget) {
-            // Draw a checkmark for successful find
-            g2d.setColor(Color.WHITE);
-            g2d.setStroke(new BasicStroke(2));
-            
-            int checkSize = Math.min(width, height) / 4;
-            int centerX = width / 2;
-            int centerY = height / 2;
-            
-            // Draw checkmark
-            g2d.drawLine(centerX - checkSize/2, centerY, centerX - checkSize/4, centerY + checkSize/2);
-            g2d.drawLine(centerX - checkSize/4, centerY + checkSize/2, centerX + checkSize/2, centerY - checkSize/2);
-        }
+        int checkSize = Math.min(width, height) / 4;
+        int centerX = width / 2;
+        int centerY = height / 2;
         
-        g2d.dispose();
+        // Draw modern checkmark with smooth curves
+        g2d.drawLine(centerX - checkSize/2, centerY, 
+                    centerX - checkSize/4, centerY + checkSize/2);
+        g2d.drawLine(centerX - checkSize/4, centerY + checkSize/2, 
+                    centerX + checkSize/2, centerY - checkSize/2);
     }
     
     public int getBoxNumber() {
@@ -171,5 +190,9 @@ public class BoxPanel extends JPanel {
     
     public int getHiddenNumber() {
         return hiddenNumber;
+    }
+    
+    public VisualState getState() {
+        return state;
     }
 }
