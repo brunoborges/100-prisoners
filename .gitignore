@@ -1,2 +1,5 @@
 target
 .vscode
+src/.DS_Store
+.gitignore
+.gitignore
