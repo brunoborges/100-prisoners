@@ -1,19 +1,43 @@
 package prisoners.gui;
 
-import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GradientPaint;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.MediaTracker;
+import java.awt.RenderingHints;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 
-import prisoners.FreedomExperiment;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+
 import prisoners.Box;
+import prisoners.FreedomExperiment;
 import prisoners.Prisoner;
 import prisoners.StepListener;
 
@@ -51,7 +75,6 @@ public final class PrisonersVisualizationApp extends JFrame {
     private static final Font HEADER_FONT = new Font("Segoe UI", Font.BOLD, 16);
     private static final Font BODY_FONT = new Font("Segoe UI", Font.PLAIN, 14);
     private static final Font BUTTON_FONT = new Font("Segoe UI", Font.BOLD, 14);
-    private static final Font STATS_FONT = new Font("SF Mono", Font.BOLD, 18);
     
     // UI Components
     private final JPanel boxGridPanel;
@@ -92,7 +115,7 @@ public final class PrisonersVisualizationApp extends JFrame {
         resetButton = new ModernButton("⟲ Reset", DARK_GRAY);
         
         prisonersSpinner = createModernSpinner(new SpinnerNumberModel(100, 4, 1000, 2));
-        delaySpinner = createModernSpinner(new SpinnerNumberModel(200, 50, 2000, 50));
+        delaySpinner = createModernSpinner(new SpinnerNumberModel(200, 5, 2000, 5));
         
         statusLabel = createCenteredLabel("Ready to start experiment", TITLE_FONT, DARK_GRAY);
         currentPrisonerLabel = createCenteredLabel("No prisoner selected", BODY_FONT, DARK_GRAY);
