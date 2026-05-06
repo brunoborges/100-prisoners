@@ -37,9 +37,56 @@ public final class ModernBoxPanel extends JPanel {
     private static final Color TEXT_COLOR = new Color(44, 62, 80);             // Dark Slate
     private static final Color ACCENT_COLOR = new Color(142, 68, 173);         // Purple Accent
     
+    // Pre-cached shadow colors to avoid allocation during paint
+    private static final Color SHADOW_NORMAL = new Color(0, 0, 0, 20);
+    private static final Color SHADOW_HOVER = new Color(0, 0, 0, 40);
+    
+    // Pre-cached derived colors for each background state
+    private static final Color NORMAL_FRONT_DARK = darker(NORMAL_COLOR, 0.85f);
+    private static final Color NORMAL_TOP = brighter(NORMAL_COLOR, 1.2f);
+    private static final Color NORMAL_RIGHT = darker(NORMAL_COLOR, 0.7f);
+    private static final Color NORMAL_RIGHT_LIGHT = darker(NORMAL_COLOR, 0.8f);
+    
+    private static final Color HOVER_FRONT_DARK = darker(HOVER_COLOR, 0.85f);
+    private static final Color HOVER_TOP = brighter(HOVER_COLOR, 1.2f);
+    private static final Color HOVER_RIGHT = darker(HOVER_COLOR, 0.7f);
+    private static final Color HOVER_RIGHT_LIGHT = darker(HOVER_COLOR, 0.8f);
+    
+    private static final Color CURRENT_FRONT_DARK = darker(CURRENT_COLOR, 0.85f);
+    private static final Color CURRENT_TOP = brighter(CURRENT_COLOR, 1.2f);
+    private static final Color CURRENT_RIGHT = darker(CURRENT_COLOR, 0.7f);
+    private static final Color CURRENT_RIGHT_LIGHT = darker(CURRENT_COLOR, 0.8f);
+    private static final Color CURRENT_BORDER = CURRENT_COLOR.darker();
+    private static final Color CURRENT_GLOW = new Color(CURRENT_COLOR.getRed(), CURRENT_COLOR.getGreen(), CURRENT_COLOR.getBlue(), 100);
+    
+    private static final Color PATH_FRONT_DARK = darker(PATH_COLOR, 0.85f);
+    private static final Color PATH_TOP = brighter(PATH_COLOR, 1.2f);
+    private static final Color PATH_RIGHT = darker(PATH_COLOR, 0.7f);
+    private static final Color PATH_RIGHT_LIGHT = darker(PATH_COLOR, 0.8f);
+    
+    private static final Color SUCCESS_FRONT_DARK = darker(SUCCESS_COLOR, 0.85f);
+    private static final Color SUCCESS_TOP = brighter(SUCCESS_COLOR, 1.2f);
+    private static final Color SUCCESS_RIGHT = darker(SUCCESS_COLOR, 0.7f);
+    private static final Color SUCCESS_RIGHT_LIGHT = darker(SUCCESS_COLOR, 0.8f);
+    
+    // Pre-cached strokes
+    private static final BasicStroke STROKE_1 = new BasicStroke(1);
+    private static final BasicStroke STROKE_2 = new BasicStroke(2);
+    private static final BasicStroke STROKE_3 = new BasicStroke(3);
+    private static final BasicStroke STROKE_CHECK = new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+    private static final BasicStroke STROKE_GLOW = new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND);
+    private static final Color CHECK_COLOR = new Color(255, 255, 255, 200);
+    private static final Color GLOW_COLOR = new Color(255, 255, 255, 50);
+    
     // Modern typography
     private static final Font BOX_FONT = new Font("SF Pro Display", Font.BOLD, 11);
     private static final Font HIDDEN_FONT = new Font("SF Pro Display", Font.BOLD, 14);
+    
+    // Reusable polygon arrays (avoid allocation per frame)
+    private final int[] polyX = new int[4];
+    private final int[] polyY = new int[4];
+    private final int[] shadowPolyX = new int[6];
+    private final int[] shadowPolyY = new int[6];
     
     public ModernBoxPanel(int boxNumber) {
         this.boxNumber = boxNumber;
@@ -199,48 +246,84 @@ public final class ModernBoxPanel extends JPanel {
     }
     
     private void paintShadow(Graphics2D g2d, int x, int y, int width, int height) {
-        // Shadow beneath the 3D box
         int depth = Math.min(width, height) / 5;
-        g2d.setColor(new Color(0, 0, 0, isHovered ? 40 : 20));
-        int[] shadowX = {x + depth + 4, x + width + 4, x + width + 4, x + width - depth + 4, x + 4, x + 4};
-        int[] shadowY = {y + 4, y + 4, y + height - depth + 4, y + height + 4, y + height + 4, y + depth + 4};
-        g2d.fillPolygon(shadowX, shadowY, 6);
+        g2d.setColor(isHovered ? SHADOW_HOVER : SHADOW_NORMAL);
+        shadowPolyX[0] = x + depth + 4; shadowPolyX[1] = x + width + 4; shadowPolyX[2] = x + width + 4;
+        shadowPolyX[3] = x + width - depth + 4; shadowPolyX[4] = x + 4; shadowPolyX[5] = x + 4;
+        shadowPolyY[0] = y + 4; shadowPolyY[1] = y + 4; shadowPolyY[2] = y + height - depth + 4;
+        shadowPolyY[3] = y + height + 4; shadowPolyY[4] = y + height + 4; shadowPolyY[5] = y + depth + 4;
+        g2d.fillPolygon(shadowPolyX, shadowPolyY, 6);
     }
     
     private void paintBackground(Graphics2D g2d, int x, int y, int width, int height) {
         Color backgroundColor = getBackgroundColor();
         int depth = Math.min(width, height) / 5;
         
+        // Get pre-cached derived colors
+        Color frontDark = getFrontDark();
+        Color topColor = getTopColor();
+        Color rightColor = getRightColor();
+        Color rightLight = getRightLight();
+        
         // Front face
-        Color frontColor = backgroundColor;
         GradientPaint frontGradient = new GradientPaint(
-            x, y + depth, frontColor,
-            x, y + height, darker(frontColor, 0.85f)
+            x, y + depth, backgroundColor,
+            x, y + height, frontDark
         );
         g2d.setPaint(frontGradient);
         g2d.fillRect(x, y + depth, width - depth, height - depth);
         
-        // Top face (lighter)
-        Color topColor = brighter(backgroundColor, 1.2f);
-        int[] topX = {x, x + depth, x + width, x + width - depth};
-        int[] topY = {y + depth, y, y, y + depth};
+        // Top face
+        polyX[0] = x; polyX[1] = x + depth; polyX[2] = x + width; polyX[3] = x + width - depth;
+        polyY[0] = y + depth; polyY[1] = y; polyY[2] = y; polyY[3] = y + depth;
         GradientPaint topGradient = new GradientPaint(
             x, y, topColor,
             x, y + depth, backgroundColor
         );
         g2d.setPaint(topGradient);
-        g2d.fillPolygon(topX, topY, 4);
+        g2d.fillPolygon(polyX, polyY, 4);
         
-        // Right face (darker)
-        Color rightColor = darker(backgroundColor, 0.7f);
-        int[] rightX = {x + width - depth, x + width, x + width, x + width - depth};
-        int[] rightY = {y + depth, y, y + height - depth, y + height};
+        // Right face
+        polyX[0] = x + width - depth; polyX[1] = x + width; polyX[2] = x + width; polyX[3] = x + width - depth;
+        polyY[0] = y + depth; polyY[1] = y; polyY[2] = y + height - depth; polyY[3] = y + height;
         GradientPaint rightGradient = new GradientPaint(
-            x + width - depth, y + depth, darker(backgroundColor, 0.8f),
+            x + width - depth, y + depth, rightLight,
             x + width, y, rightColor
         );
         g2d.setPaint(rightGradient);
-        g2d.fillPolygon(rightX, rightY, 4);
+        g2d.fillPolygon(polyX, polyY, 4);
+    }
+    
+    private Color getFrontDark() {
+        if (state.isFoundTarget()) return SUCCESS_FRONT_DARK;
+        if (state.isCurrentlyOpened()) return CURRENT_FRONT_DARK;
+        if (state.isInPath()) return PATH_FRONT_DARK;
+        if (isHovered) return HOVER_FRONT_DARK;
+        return NORMAL_FRONT_DARK;
+    }
+    
+    private Color getTopColor() {
+        if (state.isFoundTarget()) return SUCCESS_TOP;
+        if (state.isCurrentlyOpened()) return CURRENT_TOP;
+        if (state.isInPath()) return PATH_TOP;
+        if (isHovered) return HOVER_TOP;
+        return NORMAL_TOP;
+    }
+    
+    private Color getRightColor() {
+        if (state.isFoundTarget()) return SUCCESS_RIGHT;
+        if (state.isCurrentlyOpened()) return CURRENT_RIGHT;
+        if (state.isInPath()) return PATH_RIGHT;
+        if (isHovered) return HOVER_RIGHT;
+        return NORMAL_RIGHT;
+    }
+    
+    private Color getRightLight() {
+        if (state.isFoundTarget()) return SUCCESS_RIGHT_LIGHT;
+        if (state.isCurrentlyOpened()) return CURRENT_RIGHT_LIGHT;
+        if (state.isInPath()) return PATH_RIGHT_LIGHT;
+        if (isHovered) return HOVER_RIGHT_LIGHT;
+        return NORMAL_RIGHT_LIGHT;
     }
     
     private static Color darker(Color c, float factor) {
@@ -276,25 +359,24 @@ public final class ModernBoxPanel extends JPanel {
     }
     
     private void paintBorder(Graphics2D g2d, int x, int y, int width, int height) {
-        Color borderColor = state.isCurrentlyOpened() ? CURRENT_COLOR.darker() : BORDER_COLOR;
-        int borderWidth = state.isCurrentlyOpened() ? 2 : 1;
+        Color borderColor = state.isCurrentlyOpened() ? CURRENT_BORDER : BORDER_COLOR;
         int depth = Math.min(width, height) / 5;
         
         g2d.setColor(borderColor);
-        g2d.setStroke(new BasicStroke(borderWidth));
+        g2d.setStroke(state.isCurrentlyOpened() ? STROKE_2 : STROKE_1);
         
         // Front face outline
         g2d.drawRect(x, y + depth, width - depth - 1, height - depth - 1);
         
         // Top face outline
-        int[] topX = {x, x + depth, x + width - 1, x + width - depth - 1};
-        int[] topY = {y + depth, y, y, y + depth};
-        g2d.drawPolygon(topX, topY, 4);
+        polyX[0] = x; polyX[1] = x + depth; polyX[2] = x + width - 1; polyX[3] = x + width - depth - 1;
+        polyY[0] = y + depth; polyY[1] = y; polyY[2] = y; polyY[3] = y + depth;
+        g2d.drawPolygon(polyX, polyY, 4);
         
         // Right face outline
-        int[] rightX = {x + width - depth - 1, x + width - 1, x + width - 1, x + width - depth - 1};
-        int[] rightY = {y + depth, y, y + height - depth - 1, y + height - 1};
-        g2d.drawPolygon(rightX, rightY, 4);
+        polyX[0] = x + width - depth - 1; polyX[1] = x + width - 1; polyX[2] = x + width - 1; polyX[3] = x + width - depth - 1;
+        polyY[0] = y + depth; polyY[1] = y; polyY[2] = y + height - depth - 1; polyY[3] = y + height - 1;
+        g2d.drawPolygon(polyX, polyY, 4);
     }
     
     private void paintContent(Graphics2D g2d, int width, int height) {
@@ -360,36 +442,32 @@ public final class ModernBoxPanel extends JPanel {
         int depth = Math.min(width, height) / 5;
         
         if (state.isCurrentlyOpened()) {
-            // Glowing outline around the 3D box
-            g2d.setColor(new Color(CURRENT_COLOR.getRed(), CURRENT_COLOR.getGreen(), CURRENT_COLOR.getBlue(), 100));
-            g2d.setStroke(new BasicStroke(3));
+            g2d.setColor(CURRENT_GLOW);
+            g2d.setStroke(STROKE_3);
             g2d.drawRect(x - 2, y + depth - 2, width - depth + 3, height - depth + 3);
         }
         
         if (state.isFoundTarget()) {
-            // Success checkmark on front face
             paintSuccessIndicator(g2d, x, y + depth, width - depth, height - depth);
         }
     }
     
     private void paintSuccessIndicator(Graphics2D g2d, int x, int y, int width, int height) {
-        // Glowing checkmark
-        g2d.setColor(new Color(255, 255, 255, 200));
-        g2d.setStroke(new BasicStroke(3, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
-        
         int checkSize = Math.min(width, height) / 4;
         int centerX = x + width / 2;
         int centerY = y + height / 2;
         
-        // Draw modern checkmark
+        // Checkmark
+        g2d.setColor(CHECK_COLOR);
+        g2d.setStroke(STROKE_CHECK);
         g2d.drawLine(centerX - checkSize/2, centerY, 
                     centerX - checkSize/4, centerY + checkSize/2);
         g2d.drawLine(centerX - checkSize/4, centerY + checkSize/2, 
                     centerX + checkSize/2, centerY - checkSize/2);
         
-        // Add glow effect
-        g2d.setColor(new Color(255, 255, 255, 50));
-        g2d.setStroke(new BasicStroke(6, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        // Glow effect
+        g2d.setColor(GLOW_COLOR);
+        g2d.setStroke(STROKE_GLOW);
         g2d.drawLine(centerX - checkSize/2, centerY, 
                     centerX - checkSize/4, centerY + checkSize/2);
         g2d.drawLine(centerX - checkSize/4, centerY + checkSize/2, 

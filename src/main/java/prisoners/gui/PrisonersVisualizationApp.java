@@ -356,6 +356,9 @@ public final class PrisonersVisualizationApp extends JFrame {
         mainPanel.add(gridCard, BorderLayout.CENTER);
         
         add(mainPanel, BorderLayout.CENTER);
+        
+        // JVM status bar at the bottom
+        add(createJvmStatusBar(), BorderLayout.SOUTH);
     }
     
     private JPanel createCardSection(String title, JPanel content) {
@@ -490,6 +493,56 @@ public final class PrisonersVisualizationApp extends JFrame {
         
         gridPanel.add(card);
         return gridPanel;
+    }
+    
+    private JPanel createJvmStatusBar() {
+        var statusBar = new JPanel(new BorderLayout());
+        statusBar.setBackground(DARK_GRAY);
+        statusBar.setBorder(new EmptyBorder(6, 15, 6, 15));
+        
+        var memoryLabel = new JLabel();
+        memoryLabel.setFont(new Font("Monospaced", Font.PLAIN, 11));
+        memoryLabel.setForeground(LIGHT_GRAY);
+        
+        var cpuLabel = new JLabel();
+        cpuLabel.setFont(new Font("Monospaced", Font.PLAIN, 11));
+        cpuLabel.setForeground(LIGHT_GRAY);
+        
+        var threadsLabel = new JLabel();
+        threadsLabel.setFont(new Font("Monospaced", Font.PLAIN, 11));
+        threadsLabel.setForeground(LIGHT_GRAY);
+        
+        var leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 0));
+        leftPanel.setOpaque(false);
+        leftPanel.add(memoryLabel);
+        leftPanel.add(cpuLabel);
+        leftPanel.add(threadsLabel);
+        
+        statusBar.add(leftPanel, BorderLayout.WEST);
+        
+        // Update every 500ms
+        var osBean = java.lang.management.ManagementFactory.getOperatingSystemMXBean();
+        var memoryBean = java.lang.management.ManagementFactory.getMemoryMXBean();
+        
+        var refreshTimer = new javax.swing.Timer(500, e -> {
+            var heapUsage = memoryBean.getHeapMemoryUsage();
+            long usedMB = heapUsage.getUsed() / (1024 * 1024);
+            long maxMB = heapUsage.getMax() / (1024 * 1024);
+            memoryLabel.setText(String.format("Heap: %dMB / %dMB", usedMB, maxMB));
+            
+            double cpuLoad = -1;
+            if (osBean instanceof com.sun.management.OperatingSystemMXBean osMx) {
+                cpuLoad = osMx.getProcessCpuLoad() * 100;
+            }
+            cpuLabel.setText(cpuLoad >= 0 
+                ? String.format("CPU: %.1f%%", cpuLoad)
+                : "CPU: N/A");
+            
+            threadsLabel.setText(String.format("Threads: %d", Thread.activeCount()));
+        });
+        refreshTimer.start();
+        
+        return statusBar;
     }
     
     private void updateBoxGrid() {
@@ -664,7 +717,7 @@ public final class PrisonersVisualizationApp extends JFrame {
                 });
                 
                 // Pause between experiments
-                Thread.sleep(3000); // Longer pause to appreciate results
+                Thread.sleep(1000);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

@@ -12,6 +12,6 @@ if [ ! -f "target/100-prisoners-1.0.jar" ]; then
 fi
 
 echo "🚀 Starting GUI application..."
-java -cp target/100-prisoners-1.0.jar prisoners.gui.PrisonersVisualizationApp
+java -Xmx200m -XX:+UseZGC -cp target/100-prisoners-1.0.jar prisoners.gui.PrisonersVisualizationApp
 
 echo "✅ GUI application finished."
