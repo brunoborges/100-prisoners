@@ -21,6 +21,7 @@ import java.util.stream.IntStream;
 
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -98,6 +99,10 @@ public final class PrisonersVisualizationApp extends JFrame {
     private Future<?> experimentTask;
     private UIState currentState;
     private int numberOfPrisoners = 100;
+    
+    // Prisoner animation
+    private final PrisonerAnimationLayer prisonerAnimationLayer;
+    private final JCheckBox animationToggle;
 
     public PrisonersVisualizationApp() {
         // Initialize UI state
@@ -110,12 +115,21 @@ public final class PrisonersVisualizationApp extends JFrame {
         boxGridPanel = createModernBoxGrid();
         controlPanel = createModernControlPanel();
         statsPanel = createModernStatsPanel();
-        startButton = new ModernButton("▶ Start Experiment", PRIMARY_COLOR);
-        stopButton = new ModernButton("⏸ Stop", DANGER_COLOR);
-        resetButton = new ModernButton("⟲ Reset", DARK_GRAY);
+        startButton = new ModernButton("Start", PRIMARY_COLOR);
+        stopButton = new ModernButton("Stop", DANGER_COLOR);
+        resetButton = new ModernButton("Reset", DARK_GRAY);
         
         prisonersSpinner = createModernSpinner(new SpinnerNumberModel(100, 4, 1000, 2));
         delaySpinner = createModernSpinner(new SpinnerNumberModel(200, 5, 2000, 5));
+        
+        // Animation toggle
+        animationToggle = new JCheckBox("Show prisoner animation");
+        animationToggle.setFont(BODY_FONT);
+        animationToggle.setOpaque(false);
+        animationToggle.setSelected(true);
+        
+        // Prisoner animation layer
+        prisonerAnimationLayer = new PrisonerAnimationLayer();
         
         statusLabel = createCenteredLabel("Ready to start experiment", TITLE_FONT, DARK_GRAY);
         currentPrisonerLabel = createCenteredLabel("No prisoner selected", BODY_FONT, DARK_GRAY);
@@ -248,11 +262,15 @@ public final class PrisonersVisualizationApp extends JFrame {
     }
     
     private void setupWindow() {
-        setTitle("🔐 100 Prisoners Problem - Modern Visualization");
+        setTitle("100 Prisoners Problem - Visualization");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1400, 900);
+        setSize(1400, 1020);
         setLocationRelativeTo(null);
         setBackground(BACKGROUND_COLOR);
+        
+        // Set the prisoner animation layer as the glass pane
+        setGlassPane(prisonerAnimationLayer);
+        prisonerAnimationLayer.setVisible(true);
         
         // Custom window icon if available
         try {
@@ -285,7 +303,7 @@ public final class PrisonersVisualizationApp extends JFrame {
         var titlePanel = new JPanel(new BorderLayout());
         titlePanel.setBackground(BACKGROUND_COLOR);
         
-        var titleLabel = new JLabel("🔐 100 Prisoners Problem Visualization", SwingConstants.CENTER);
+        var titleLabel = new JLabel("100 Prisoners Problem Visualization", SwingConstants.CENTER);
         titleLabel.setFont(TITLE_FONT);
         titleLabel.setForeground(DARK_GRAY);
         
@@ -384,8 +402,13 @@ public final class PrisonersVisualizationApp extends JFrame {
         gbc.weightx = 0.6;
         controlPanel.add(delaySpinner, gbc);
         
-        // Buttons
+        // Animation toggle
         gbc.gridx = 0; gbc.gridy = 2; gbc.gridwidth = 2;
+        gbc.weightx = 1.0;
+        controlPanel.add(animationToggle, gbc);
+        
+        // Buttons
+        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.insets = new Insets(15, 8, 8, 8); // More space above buttons
@@ -428,7 +451,7 @@ public final class PrisonersVisualizationApp extends JFrame {
         card.setLayout(new BorderLayout());
         card.setBorder(new EmptyBorder(20, 20, 20, 20));
         
-        var headerLabel = new JLabel("🔄 Status");
+        var headerLabel = new JLabel("Status");
         headerLabel.setFont(HEADER_FONT);
         headerLabel.setForeground(DARK_GRAY);
         
@@ -488,6 +511,16 @@ public final class PrisonersVisualizationApp extends JFrame {
             boxGridPanel.add(boxPanel);
         }
         
+        // Set preferred size to ensure all rows are visible without scroll clipping
+        int cellHeight = 70; // matches ModernBoxPanel preferred height
+        int cellWidth = 70;
+        int totalWidth = cols * (cellWidth + 8) + 20;
+        int totalHeight = rows * (cellHeight + 8) + 20;
+        boxGridPanel.setPreferredSize(new Dimension(totalWidth, totalHeight));
+        
+        // Update animation layer with new box references
+        prisonerAnimationLayer.setBoxGrid(boxGridPanel, boxPanels);
+        
         boxGridPanel.revalidate();
         boxGridPanel.repaint();
     }
@@ -504,14 +537,21 @@ public final class PrisonersVisualizationApp extends JFrame {
             }
         });
         
-        delaySpinner.addChangeListener(e -> 
+        delaySpinner.addChangeListener(e -> {
+            int delay = (Integer) delaySpinner.getValue();
             currentState = new UIState(
                 currentState.isRunning(),
                 currentState.currentPrisonerNumber(),
                 currentState.successfulAttempts(),
                 currentState.totalAttempts(),
-                (Integer) delaySpinner.getValue()
-            )
+                delay
+            );
+            // Movement animation takes 60% of the total step time
+            prisonerAnimationLayer.setAnimationDurationMs((int)(delay * 0.6));
+        });
+        
+        animationToggle.addActionListener(e -> 
+            prisonerAnimationLayer.setAnimationEnabled(animationToggle.isSelected())
         );
     }
     
@@ -527,7 +567,7 @@ public final class PrisonersVisualizationApp extends JFrame {
         resetButton.setEnabled(false);
         prisonersSpinner.setEnabled(false);
         
-        statusLabel.setText("🚀 Starting experiment...");
+        statusLabel.setText("Starting experiment...");
         statusLabel.setForeground(PRIMARY_COLOR);
         
         experimentTask = executorService.submit(this::runExperimentLoop);
@@ -544,12 +584,15 @@ public final class PrisonersVisualizationApp extends JFrame {
             experimentTask.cancel(true);
         }
         
+        // Immediately finish any in-progress prisoner animation
+        prisonerAnimationLayer.finishImmediately();
+        
         SwingUtilities.invokeLater(() -> {
             startButton.setEnabled(true);
             stopButton.setEnabled(false);
             resetButton.setEnabled(true);
             prisonersSpinner.setEnabled(true);
-            statusLabel.setText("⏸ Experiment stopped");
+            statusLabel.setText("Experiment stopped");
             statusLabel.setForeground(WARNING_COLOR);
         });
     }
@@ -567,7 +610,10 @@ public final class PrisonersVisualizationApp extends JFrame {
                 }
             }
             
-            statusLabel.setText("✅ Ready to start experiment");
+            // Reset prisoner animation
+            prisonerAnimationLayer.resetPosition();
+            
+            statusLabel.setText("Ready to start experiment");
             statusLabel.setForeground(SUCCESS_COLOR);
             currentPrisonerLabel.setText("No prisoner selected");
             currentPrisonerLabel.setForeground(DARK_GRAY);
@@ -587,21 +633,11 @@ public final class PrisonersVisualizationApp extends JFrame {
                 experiment = new FreedomExperiment(numberOfPrisoners);
                 
                 SwingUtilities.invokeLater(() -> {
-                    statusLabel.setText("🔄 Running experiment...");
+                    statusLabel.setText("Running experiment...");
                     statusLabel.setForeground(PRIMARY_COLOR);
                     for (var boxPanel : boxPanels) {
                         boxPanel.reset();
                     }
-                });
-                
-                // Initialize box contents for visualization
-                IntStream.range(0, numberOfPrisoners).forEach(i -> {
-                    var box = experiment.getBox(i + 1);
-                    SwingUtilities.invokeLater(() -> {
-                        if (box != null && box.hiddenNumber() > 0) {
-                            boxPanels[i].setHiddenNumber(box.hiddenNumber());
-                        }
-                    });
                 });
                 
                 // Run experiment with modern step listener
@@ -619,10 +655,10 @@ public final class PrisonersVisualizationApp extends JFrame {
                 SwingUtilities.invokeLater(() -> {
                     updateStatistics();
                     if (success) {
-                        statusLabel.setText("🎉 SUCCESS! All prisoners escaped!");
+                        statusLabel.setText("SUCCESS! All prisoners escaped!");
                         statusLabel.setForeground(SUCCESS_COLOR);
                     } else {
-                        statusLabel.setText("💥 FAILED! Some prisoners remain trapped.");
+                        statusLabel.setText("FAILED! Some prisoners remain trapped.");
                         statusLabel.setForeground(DANGER_COLOR);
                     }
                 });
@@ -634,7 +670,7 @@ public final class PrisonersVisualizationApp extends JFrame {
             Thread.currentThread().interrupt();
         } catch (Exception e) {
             SwingUtilities.invokeLater(() -> {
-                statusLabel.setText(String.format("❌ Error: %s", e.getMessage()));
+                statusLabel.setText(String.format("Error: %s", e.getMessage()));
                 statusLabel.setForeground(DANGER_COLOR);
                 stopExperiment();
             });
@@ -664,11 +700,14 @@ public final class PrisonersVisualizationApp extends JFrame {
     }
     
     /**
-     * Modern step listener with enhanced visual feedback.
+     * Modern step listener with enhanced visual feedback and prisoner animation.
      */
     private final class ModernStepListener implements StepListener {
         @Override
         public void onStep(Prisoner prisoner, Box box) {
+            // Use a latch to wait for animation to complete before proceeding
+            var latch = new java.util.concurrent.CountDownLatch(1);
+            
             SwingUtilities.invokeLater(() -> {
                 if (currentState.currentPrisonerNumber() != prisoner.number()) {
                     // New prisoner started - update state with animation
@@ -687,25 +726,40 @@ public final class PrisonersVisualizationApp extends JFrame {
                     for (var boxPanel : boxPanels) {
                         boxPanel.clearPath();
                     }
+                    
+                    // Reset prisoner position for new prisoner
+                    prisonerAnimationLayer.resetPosition();
                 }
                 
-                // Highlight current box with animation
+                // Animate prisoner moving to this box
                 int boxIndex = box.label() - 1;
                 if (boxIndex >= 0 && boxIndex < boxPanels.length) {
-                    var boxPanel = boxPanels[boxIndex];
-                    boxPanel.setCurrentlyOpened(true);
-                    
-                    // Check success with visual feedback
-                    if (box.hiddenNumber() == prisoner.number()) {
-                        boxPanel.setFoundTarget(true);
-                    } else {
-                        boxPanel.setInPath(true);
-                    }
+                    prisonerAnimationLayer.moveTo(boxIndex, () -> {
+                        SwingUtilities.invokeLater(() -> {
+                            // After arriving at the box, open it and reveal the hidden number
+                            var boxPanel = boxPanels[boxIndex];
+                            boxPanel.setHiddenNumber(box.hiddenNumber());
+                            boxPanel.setCurrentlyOpened(true);
+                            
+                            if (box.hiddenNumber() == prisoner.number()) {
+                                boxPanel.setFoundTarget(true);
+                            } else {
+                                boxPanel.setInPath(true);
+                            }
+                            latch.countDown();
+                        });
+                    });
+                } else {
+                    latch.countDown();
                 }
             });
             
             try {
-                Thread.sleep(currentState.animationDelay());
+                // Wait for animation to finish before the experiment proceeds
+                latch.await();
+                // Pause for remaining 40% of the step time (animation takes 60%)
+                int delay = (Integer) delaySpinner.getValue();
+                Thread.sleep((int)(delay * 0.4));
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
             }

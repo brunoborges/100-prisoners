@@ -199,21 +199,66 @@ public final class ModernBoxPanel extends JPanel {
     }
     
     private void paintShadow(Graphics2D g2d, int x, int y, int width, int height) {
-        // Subtle drop shadow for depth
-        g2d.setColor(new Color(0, 0, 0, isHovered ? 30 : 15));
-        g2d.fillRoundRect(x + 2, y + 2, width, height, 8, 8);
+        // Shadow beneath the 3D box
+        int depth = Math.min(width, height) / 5;
+        g2d.setColor(new Color(0, 0, 0, isHovered ? 40 : 20));
+        int[] shadowX = {x + depth + 4, x + width + 4, x + width + 4, x + width - depth + 4, x + 4, x + 4};
+        int[] shadowY = {y + 4, y + 4, y + height - depth + 4, y + height + 4, y + height + 4, y + depth + 4};
+        g2d.fillPolygon(shadowX, shadowY, 6);
     }
     
     private void paintBackground(Graphics2D g2d, int x, int y, int width, int height) {
         Color backgroundColor = getBackgroundColor();
+        int depth = Math.min(width, height) / 5;
         
-        // Gradient background for depth
-        GradientPaint gradient = new GradientPaint(
-            x, y, backgroundColor,
-            x, y + height, backgroundColor.darker()
+        // Front face
+        Color frontColor = backgroundColor;
+        GradientPaint frontGradient = new GradientPaint(
+            x, y + depth, frontColor,
+            x, y + height, darker(frontColor, 0.85f)
         );
-        g2d.setPaint(gradient);
-        g2d.fillRoundRect(x, y, width, height, 8, 8);
+        g2d.setPaint(frontGradient);
+        g2d.fillRect(x, y + depth, width - depth, height - depth);
+        
+        // Top face (lighter)
+        Color topColor = brighter(backgroundColor, 1.2f);
+        int[] topX = {x, x + depth, x + width, x + width - depth};
+        int[] topY = {y + depth, y, y, y + depth};
+        GradientPaint topGradient = new GradientPaint(
+            x, y, topColor,
+            x, y + depth, backgroundColor
+        );
+        g2d.setPaint(topGradient);
+        g2d.fillPolygon(topX, topY, 4);
+        
+        // Right face (darker)
+        Color rightColor = darker(backgroundColor, 0.7f);
+        int[] rightX = {x + width - depth, x + width, x + width, x + width - depth};
+        int[] rightY = {y + depth, y, y + height - depth, y + height};
+        GradientPaint rightGradient = new GradientPaint(
+            x + width - depth, y + depth, darker(backgroundColor, 0.8f),
+            x + width, y, rightColor
+        );
+        g2d.setPaint(rightGradient);
+        g2d.fillPolygon(rightX, rightY, 4);
+    }
+    
+    private static Color darker(Color c, float factor) {
+        return new Color(
+            Math.max(0, (int)(c.getRed() * factor)),
+            Math.max(0, (int)(c.getGreen() * factor)),
+            Math.max(0, (int)(c.getBlue() * factor)),
+            c.getAlpha()
+        );
+    }
+    
+    private static Color brighter(Color c, float factor) {
+        return new Color(
+            Math.min(255, (int)(c.getRed() * factor)),
+            Math.min(255, (int)(c.getGreen() * factor)),
+            Math.min(255, (int)(c.getBlue() * factor)),
+            c.getAlpha()
+        );
     }
     
     private Color getBackgroundColor() {
@@ -233,39 +278,57 @@ public final class ModernBoxPanel extends JPanel {
     private void paintBorder(Graphics2D g2d, int x, int y, int width, int height) {
         Color borderColor = state.isCurrentlyOpened() ? CURRENT_COLOR.darker() : BORDER_COLOR;
         int borderWidth = state.isCurrentlyOpened() ? 2 : 1;
+        int depth = Math.min(width, height) / 5;
         
         g2d.setColor(borderColor);
         g2d.setStroke(new BasicStroke(borderWidth));
-        g2d.drawRoundRect(x, y, width - 1, height - 1, 8, 8);
+        
+        // Front face outline
+        g2d.drawRect(x, y + depth, width - depth - 1, height - depth - 1);
+        
+        // Top face outline
+        int[] topX = {x, x + depth, x + width - 1, x + width - depth - 1};
+        int[] topY = {y + depth, y, y, y + depth};
+        g2d.drawPolygon(topX, topY, 4);
+        
+        // Right face outline
+        int[] rightX = {x + width - depth - 1, x + width - 1, x + width - 1, x + width - depth - 1};
+        int[] rightY = {y + depth, y, y + height - depth - 1, y + height - 1};
+        g2d.drawPolygon(rightX, rightY, 4);
     }
     
     private void paintContent(Graphics2D g2d, int width, int height) {
-        // Box number (always visible)
+        int depth = Math.min(width, height) / 5;
+        // Center content on the front face
+        int faceX = 0;
+        int faceY = depth;
+        int faceW = width - depth;
+        int faceH = height - depth;
+        
+        // Box number (always visible, top of front face)
         g2d.setColor(getTextColor());
         g2d.setFont(BOX_FONT);
         FontMetrics fm = g2d.getFontMetrics();
         
         String boxText = String.valueOf(boxNumber);
         int textWidth = fm.stringWidth(boxText);
-        int textHeight = fm.getHeight();
         
         g2d.drawString(boxText, 
-            (width - textWidth) / 2, 
-            textHeight - 2);
+            faceX + (faceW - textWidth) / 2, 
+            faceY + fm.getAscent() + 2);
         
-        // Hidden number (revealed during experiment)
-        if (shouldShowHidden()) {
+        // Hidden number displayed at the bottom of the front face
+        if (hiddenNumber > 0) {
             g2d.setFont(HIDDEN_FONT);
             g2d.setColor(getHiddenTextColor());
             
             String hiddenText = String.valueOf(hiddenNumber);
             FontMetrics hiddenFm = g2d.getFontMetrics();
             int hiddenWidth = hiddenFm.stringWidth(hiddenText);
-            int hiddenHeight = hiddenFm.getHeight();
             
             g2d.drawString(hiddenText, 
-                (width - hiddenWidth) / 2, 
-                height / 2 + hiddenHeight / 4);
+                faceX + (faceW - hiddenWidth) / 2, 
+                faceY + faceH - 4);
         }
     }
     
@@ -276,8 +339,10 @@ public final class ModernBoxPanel extends JPanel {
     private Color getTextColor() {
         if (state.isFoundTarget()) {
             return Color.WHITE;
-        } else if (state.isCurrentlyOpened() || state.isInPath()) {
+        } else if (state.isCurrentlyOpened()) {
             return Color.WHITE;
+        } else if (state.isInPath()) {
+            return TEXT_COLOR;
         } else {
             return TEXT_COLOR;
         }
@@ -292,16 +357,18 @@ public final class ModernBoxPanel extends JPanel {
     }
     
     private void paintStateIndicators(Graphics2D g2d, int x, int y, int width, int height) {
+        int depth = Math.min(width, height) / 5;
+        
         if (state.isCurrentlyOpened()) {
-            // Pulsing border effect
+            // Glowing outline around the 3D box
             g2d.setColor(new Color(CURRENT_COLOR.getRed(), CURRENT_COLOR.getGreen(), CURRENT_COLOR.getBlue(), 100));
-            g2d.setStroke(new BasicStroke(4));
-            g2d.drawRoundRect(x - 2, y - 2, width + 4, height + 4, 12, 12);
+            g2d.setStroke(new BasicStroke(3));
+            g2d.drawRect(x - 2, y + depth - 2, width - depth + 3, height - depth + 3);
         }
         
         if (state.isFoundTarget()) {
-            // Success checkmark with glow
-            paintSuccessIndicator(g2d, x, y, width, height);
+            // Success checkmark on front face
+            paintSuccessIndicator(g2d, x, y + depth, width - depth, height - depth);
         }
     }
     

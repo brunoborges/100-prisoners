@@ -120,7 +120,8 @@ public final class BoxPanel extends JPanel {
         int height = getHeight();
         
         // Draw box number (always visible)
-        g2d.setColor(Color.BLACK);
+        Color textColor = (state.isCurrentlyOpened() || state.isFoundTarget()) ? Color.WHITE : Color.BLACK;
+        g2d.setColor(textColor);
         g2d.setFont(new Font("Segoe UI", Font.BOLD, 10));
         var fm = g2d.getFontMetrics();
         
