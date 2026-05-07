@@ -158,6 +158,8 @@ Experience the experiment visually with the **stunning modern desktop applicatio
 - **Smooth animations** with configurable speed (50ms to 2000ms)
 - **Real-time progress indicators** with color-coded success rates
 
+<img width="212" height="83" alt="image" src="https://github.com/user-attachments/assets/ec772a36-9267-4c73-854e-9e2bae7ed0dc" />
+
 ## 📊 Example Output
 
 ```
